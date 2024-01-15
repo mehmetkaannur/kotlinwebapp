@@ -4,6 +4,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.Status.Companion.FOUND
 import org.http4k.core.body.form
 import org.http4k.routing.bind
 import org.http4k.routing.routes
@@ -27,17 +28,12 @@ val app: HttpHandler = routes(
     val viewModel = PostPage(titles, bodies)
     Response(Status.OK).body(renderer(viewModel))
   },
-  "/posts" bind Method.POST to { request ->
+  "/submit" bind Method.POST to { request ->
     val postsDatabase = PostsDatabase()
     request.form("body")
       ?.let { Post(title = request.form("title")!!, body = it) }
       ?.let { postsDatabase.addPost(it) }
-    val posts = postsDatabase.loadAllPosts()
-    val titles = posts.map { it.title }
-    val bodies = posts.map { it.body }
-    val renderer = FreemarkerTemplates().HotReload("src/main/resources")
-    val viewModel = PostPage(titles, bodies)
-    Response(Status.OK).body(renderer(viewModel))
+    Response(FOUND).header("Location", "/posts")
   },
 )
 
