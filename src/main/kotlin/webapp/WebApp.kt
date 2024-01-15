@@ -26,9 +26,10 @@ val app: HttpHandler = routes(
 
   "/submit" bind POST to { request ->
     val scrabble = request.form("words")?.uppercase()?.split(" ")
-      ?.map { scoreCalculator(it) }
+      ?.map { x -> x.sumOf { scoreCalculator(it.toString()) } }
+    val words = request.form("words")?.uppercase()?.split(" ")
     val renderer = FreemarkerTemplates().HotReload("src/main/resources")
-    val viewModel = SubmitPage(scrabble)
+    val viewModel = SubmitPage(words, scrabble)
     Response(OK).body(renderer(viewModel))
   },
 )
